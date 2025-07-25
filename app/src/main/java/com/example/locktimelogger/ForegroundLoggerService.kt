@@ -11,20 +11,17 @@ class ForegroundLoggerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        NotificationHelper.createNotificationChannel(this)
+        val notification = NotificationHelper.buildNotification(this)
+        startForeground(1, notification)
+
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_OFF)
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_USER_PRESENT)
         }
         registerReceiver(receiver, filter)
-
-        /*val notification = NotificationCompat.Builder(this, "logger_channel")
-            .setContentTitle("Логирование блокировок")
-            .setContentText("Сервис запущен")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .build()
-
-        startForeground(1, notification)*/
     }
 
     override fun onDestroy() {

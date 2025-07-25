@@ -1,26 +1,17 @@
 package com.example.locktimelogger
 
-import android.app.admin.DevicePolicyManager
-import android.content.ComponentName
 import android.content.Intent
-import android.os.Build
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.FileUtils
-import android.util.Log
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.locktimelogger.databinding.ActivityMainBinding
-import java.io.File
-import java.io.FileWriter
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,6 +22,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), REQUEST_CODE_POST_NOTIFICATIONS)
+        }
+
+        startForegroundService(Intent(this, ForegroundLoggerService::class.java))
+
         setContentView(R.layout.activity_main)
 
         recyclerView = findViewById(R.id.logRecycler)
@@ -46,9 +44,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         loadLog()
-
-        startForegroundService(Intent(this, ForegroundLoggerService::class.java))
     }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_POST_NOTIFICATIONS) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Разрешение получено — можно показывать уведомления
+            } else {
+                // Разрешение не получено — уведомления не будут отображаться
+            }
+        }
+    }
+
+    private val REQUEST_CODE_POST_NOTIFICATIONS = 101
 
     private fun loadLog() {
         val entries = LogUtils.getLogEntries(this)
