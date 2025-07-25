@@ -16,6 +16,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.locktimelogger.databinding.ActivityMainBinding
 import java.io.File
 import java.io.FileWriter
@@ -23,54 +25,35 @@ import java.io.FileWriter
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var binding: ActivityMainBinding
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: LogEntryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i("filesDir", "${baseContext.filesDir}")
-        val tmpFile = "${baseContext.filesDir}/tmp1";
-        Log.i("tmpFile", tmpFile)
-        FileWriter(tmpFile, true).use { writer ->
-            writer.appendLine("ХУЙ")
+        setContentView(R.layout.activity_main)
+
+        recyclerView = findViewById(R.id.logRecycler)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        findViewById<Button>(R.id.btnRefresh).setOnClickListener {
+            loadLog()
         }
-        val button = Button(this).apply {
-            text = "Активировать Device Admin"
-            setOnClickListener {
-                activateDeviceAdmin()
-            }
+
+        findViewById<Button>(R.id.btnClear).setOnClickListener {
+            LogUtils.clearLog(this)
+            loadLog()
         }
-        setContentView(button)
+
+        loadLog()
 
         startForegroundService(Intent(this, ForegroundLoggerService::class.java))
     }
 
-    /*override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setSupportActionBar(binding.toolbar)
-
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
-        }
-    }*/
-
-    private fun activateDeviceAdmin() {
-        val compName = ComponentName(this, MyDeviceAdminReceiver::class.java)
-        val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
-            putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName)
-            putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Разреши доступ, чтобы логировать блокировку/разблокировку.")
-        }
-        //startActivity(intent)
-        startForegroundService(Intent(this, ForegroundLoggerService::class.java))
+    private fun loadLog() {
+        val entries = LogUtils.getLogEntries(this)
+        adapter = LogEntryAdapter(entries)
+        recyclerView.adapter = adapter
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

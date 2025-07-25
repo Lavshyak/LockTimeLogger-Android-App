@@ -9,24 +9,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Date
 import java.util.concurrent.atomic.AtomicBoolean
 
 class ScreenEventReceiver : BroadcastReceiver() {
-    /*override fun onReceive(context: Context, intent: Intent?) {
-        val event = when (intent?.action) {
-            Intent.ACTION_SCREEN_OFF -> "SCREEN_OFF"
-            Intent.ACTION_SCREEN_ON -> "SCREEN_ON"
-            Intent.ACTION_USER_PRESENT -> "USER_PRESENT"
-            else -> return
-        }
-
-        val timestamp = System.currentTimeMillis()
-        val log = "$event at ${Date(timestamp)}"
-        Log.d("ScreenReceiver", log)
-        LogUtils.appendToLogFile(context, log)
-    }*/
-
     override fun onReceive(context: Context, intent: Intent?) {
         val action = intent?.action ?: return
         val keyguard = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
@@ -48,7 +33,7 @@ class ScreenEventReceiver : BroadcastReceiver() {
 
         if (state == "SCREEN_OFF_NO_LOCK") {
             LockStateMonitor.startWaitForLock(context)
-        } else {
+        } else if(state != "UNKNOWN") {
             LockStateMonitor.requestBreak()
         }
 

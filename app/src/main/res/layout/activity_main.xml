@@ -7,27 +7,41 @@
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="12dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="8dp">
 
-    </com.google.android.material.appbar.AppBarLayout>
+            <Button
+                android:id="@+id/btnRefresh"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="Обновить"
+                android:layout_height="wrap_content" />
 
-    <include layout="@layout/content_main" />
+            <Button
+                android:id="@+id/btnClear"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="Очистить"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="16dp"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/logRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
