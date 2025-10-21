@@ -24,6 +24,11 @@ class ForegroundLoggerService : Service() {
         registerReceiver(receiver, filter)
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // ничего особого, просто возвращаем флаг, чтобы сервис не умирал
+        return START_STICKY
+    }
+
     override fun onDestroy() {
         unregisterReceiver(receiver)
         super.onDestroy()
