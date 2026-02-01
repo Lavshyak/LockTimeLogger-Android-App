@@ -25,7 +25,7 @@ class ScreenEventReceiver : BroadcastReceiver() {
 
             Intent.ACTION_SCREEN_ON -> {
                 if (keyguard.isKeyguardLocked) "SCREEN_ON_LOCKED"
-                else "SCREEN_ON_UNCLOCKED"
+                else "SCREEN_ON_UNLOCKED"
             }
 
             Intent.ACTION_USER_PRESENT -> "DEVICE_UNLOCKED"
