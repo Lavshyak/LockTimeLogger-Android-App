@@ -10,7 +10,7 @@ class BootReceiver : BroadcastReceiver() {
             intent.action == Intent.ACTION_LOCKED_BOOT_COMPLETED
         ) {
 
-            val serviceIntent = Intent(context, ForegroundLoggerService::class.java)
+            val serviceIntent = Intent(context, ScreenStateAccessibilityService::class.java)
             context.startForegroundService(serviceIntent);
         }
     }

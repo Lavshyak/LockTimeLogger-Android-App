@@ -1,15 +1,23 @@
 package com.example.locktimelogger
 
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.view.Menu
+import android.view.MenuItem
+import android.view.accessibility.AccessibilityManager
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -19,6 +27,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: LogEntryAdapter
+    private lateinit var statusText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,10 +36,14 @@ class MainActivity : AppCompatActivity() {
             requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), REQUEST_CODE_POST_NOTIFICATIONS)
         }
 
-        startForegroundService(Intent(this, ForegroundLoggerService::class.java))
+        // Запускаем foreground service — работает без ограничений на Android 13,
+        // а на Android 14+ будет жить пока система не убьет (AccessibilityService
+        // будет фоллбеком).
+        startForegroundService(Intent(this, ScreenStateAccessibilityService::class.java))
 
         setContentView(R.layout.activity_main)
 
+        statusText = findViewById(R.id.statusText)
         recyclerView = findViewById(R.id.logRecycler)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -44,6 +57,57 @@ class MainActivity : AppCompatActivity() {
         }
 
         loadLog()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkAccessibilityServiceStatus()
+    }
+
+    /**
+     * Проверяет, включен ли AccessibilityService, и предлагает пользователю его включить.
+     */
+    private fun checkAccessibilityServiceStatus() {
+        val accessibilityManager = getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        val enabledServices = accessibilityManager.getEnabledAccessibilityServiceList(
+            AccessibilityServiceInfo.FEEDBACK_GENERIC
+        )
+
+        val isServiceEnabled = enabledServices.any { it.resolveInfo.serviceInfo.packageName == packageName }
+
+        statusText.text = if (isServiceEnabled) {
+            "AccessibilityService: ВКЛЮЧЕН ✓\nРаботает в фоне без ограничений."
+        } else {
+            "AccessibilityService: ОТКЛЮЧЕН ✗\nНа Android 14+ foreground service будет убит системой."
+        }
+
+        if (!isServiceEnabled) {
+            showEnableAccessibilityDialog()
+        }
+    }
+
+    private fun showEnableAccessibilityDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Включить специальные возможности?")
+            .setMessage(
+                "В Android 14+ (особенно 16+) foreground service убивается системой через ~6 часов.\n\n" +
+                "Для надежной работы в фоне приложение использует AccessibilityService.\n\n" +
+                "Пожалуйста, включите его в настройках:\n" +
+                "Настройки → Специальные возможности → LockTimeLogger → Включить"
+            )
+            .setPositiveButton("Открыть настройки") { _, _ ->
+                openAccessibilitySettings()
+            }
+            .setNegativeButton("Позже") { _, _ ->
+                Toast.makeText(this, "Foreground service будет работать, но может быть остановлен системой", Toast.LENGTH_LONG).show()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun openAccessibilitySettings() {
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+        startActivity(intent)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
