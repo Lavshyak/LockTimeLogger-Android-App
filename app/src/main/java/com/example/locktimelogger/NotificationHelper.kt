@@ -15,7 +15,7 @@ object NotificationHelper {
         val channel = NotificationChannel(
             CHANNEL_ID,
             "Lock Logger Background Service",
-            NotificationManager.IMPORTANCE_LOW
+            NotificationManager.IMPORTANCE_MIN
         )
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(channel)
@@ -30,7 +30,7 @@ object NotificationHelper {
         )
 
         return NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle("Логирование блокировок")
+            .setContentTitle("Lock logging")
             .setContentText("Сервис работает")
             .setSmallIcon(R.drawable.ic_launcher_foreground) // Заменить на свою иконку
             .setContentIntent(pendingIntent)
