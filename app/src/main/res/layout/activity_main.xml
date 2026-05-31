@@ -37,18 +37,6 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/statusText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:gravity="center"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"
-            android:background="#1E000000"
-            tools:text="AccessibilityService: ОТКЛЮЧЕН ✗" />
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/logRecycler"
             android:layout_width="match_parent"

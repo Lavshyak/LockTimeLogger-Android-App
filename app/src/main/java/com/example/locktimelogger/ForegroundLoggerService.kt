@@ -3,19 +3,13 @@ package com.example.locktimelogger
 import android.app.Service
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 
-/*
 class ForegroundLoggerService : Service() {
     private val receiver = ScreenEventReceiver()
 
     override fun onCreate() {
-        if(Build.VERSION.SDK_INT > 34){
-            throw Exception("ForegroundLoggerService");
-        }
-
         super.onCreate()
 
         NotificationHelper.createNotificationChannel(this)
@@ -42,4 +36,3 @@ class ForegroundLoggerService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 }
-*/
